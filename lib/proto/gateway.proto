@@ -1,0 +1,20 @@
+syntax = "proto2";
+package moos.gateway;  // Namespace for grabbing messages
+
+//-----------------------------------------------
+//  Gateway interface
+//------------------------------------------------
+
+message FromGateway {
+  optional double	gateway_time   = 1;
+  optional string	gateway_key    = 2;
+  optional string	gateway_string = 3;
+  optional double	gateway_double = 4;
+}
+
+message ToGateway {
+  optional double	client_time   = 1;
+  optional string	client_key    = 2;
+  optional string	client_string = 3;
+  optional double	client_double = 4;
+}
