@@ -19,7 +19,6 @@ find_package(Boost REQUIRED COMPONENTS system)
 find_package(Protobuf REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(protobuf_client_interfaces REQUIRED)  # Custom Msg for protobuf_client
 
 message("libprotobuf >= 2.5.0")
 set(PROTOBUF_ALLOW_ALIAS "option allow_alias = true;")
@@ -37,11 +36,10 @@ ament_export_include_directories(include include/protobuf_client include/lib_gat
 # lib/proto is a directory to store the raw gateway.proto msg 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS include/protobuf_client/ lib/proto/gateway.proto)
 
-# Moved to protobuf_interfaces
-#rosidl_generate_interfaces(${PROJECT_NAME}
-#  "msg/Gateway.msg"
-#  DEPENDENCIES builtin_interfaces std_msgs
-#  )
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Gateway.msg"
+  DEPENDENCIES builtin_interfaces std_msgs
+  )
 
 add_library(gateway_protobuf include/protobuf_client/gateway.pb.cc)
 
@@ -58,12 +56,13 @@ add_library(gateway_tcp_lib
 target_link_libraries(gateway_tcp_lib
   ${Boost_LIBRARIES}
   ${PROTOBUF_LIBRARY}
-  b64)
+  ${B64_LIBRARIES})
 
 ament_target_dependencies(gateway_tcp_lib
   ${B64_LIBRARIES})
+ament_export_include_directories(include)
 ament_export_targets(gateway_tcp_lib HAS_LIBRARY_TARGET)
-
+ament_export_libraries(gateway_tcp_lib)
 
 
 install(
@@ -84,8 +83,7 @@ target_link_libraries(protobuf_client_node
 ament_target_dependencies(protobuf_client_node
   rclcpp
   class_loader
-  std_msgs
-  protobuf_client_interfaces)
+  std_msgs)
 
 install(TARGETS
   protobuf_client_node
