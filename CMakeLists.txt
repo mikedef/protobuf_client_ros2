@@ -15,9 +15,10 @@ find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS)
 find_package(Protobuf REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(class_loader REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(protobuf_client_interfaces REQUIRED)  # Custom Msg for protobuf_client
 
@@ -30,29 +31,30 @@ include_directories(include include/protobuf_client include/lib_gateway_tcp
 			    rclcpp ${Boost_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS}
 			    ${B64_LIBRARIES})
 
-ament_export_include_directories(include include/protobuf_client include/lib_gateway_tcp
-                                 include/gateway_tcp_lib
-			         rclcpp ${Boost_INCLUDE_DIRS} ${PROTOBUF_INCLUDE_DIRS}
-			         ${B64_LIBRARIES})      
 # lib/proto is a directory to store the raw gateway.proto msg 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS include/protobuf_client/ lib/proto/gateway.proto)
 
-# Moved to protobuf_interfaces
-#rosidl_generate_interfaces(${PROJECT_NAME}
-#  "msg/Gateway.msg"
-#  DEPENDENCIES builtin_interfaces std_msgs
-#  )
-
+# Library: gateway_protobuf
 add_library(gateway_protobuf include/protobuf_client/gateway.pb.cc)
+
+install(
+  TARGETS gateway_protobuf
+  EXPORT gateway_protobuf
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include/gateway_protobuf
+  )	   
+
 
 # Library: gateway_tcp_lib
 add_library(gateway_tcp_lib                                                                             
   lib/lib_gateway_tcp/tcp_client.cpp
   lib/lib_gateway_tcp/tcp_server.cpp
   lib/lib_gateway_tcp/tcp_session.cpp
-  include/lib_gateway_tcp/tcp_client.h
-  include/lib_gateway_tcp/tcp_server.h
-  include/lib_gateway_tcp/tcp_session.h
+  #include/lib_gateway_tcp/tcp_client.h
+  #include/lib_gateway_tcp/tcp_server.h
+  #include/lib_gateway_tcp/tcp_session.h
   )
 
 target_link_libraries(gateway_tcp_lib
@@ -61,10 +63,11 @@ target_link_libraries(gateway_tcp_lib
   b64)
 
 ament_target_dependencies(gateway_tcp_lib
-  ${B64_LIBRARIES})
+  ${B64_LIBRARIES}
+  ${Boost_LIBRARIES})
 ament_export_targets(gateway_tcp_lib HAS_LIBRARY_TARGET)
-
-
+ament_target_dependencies(gateway_tcp_lib
+  PUBLIC)
 
 install(
   TARGETS gateway_tcp_lib 
@@ -72,17 +75,21 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  INCLUDES DESTINATION include/lib_gateway_tcp
   )
 
+
+# Node: protobuf_client_node
 add_executable(protobuf_client_node 
   src/protobuf_client_node.cpp)
 target_link_libraries(protobuf_client_node
   gateway_tcp_lib
   gateway_protobuf
-  ${PROTOBUF_LIBRARY})
+  ${PROTOBUF_LIBRARY}
+  ${Boost_LIBRARIES})
 ament_target_dependencies(protobuf_client_node
   rclcpp
+  Boost
   class_loader
   std_msgs
   protobuf_client_interfaces)
@@ -90,5 +97,11 @@ ament_target_dependencies(protobuf_client_node
 install(TARGETS
   protobuf_client_node
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY include/ DESTINATION include/gateway_tcp_lib)
+install(DIRECTORY include/ DESTINATION include/gateway_protobuf)
+ament_export_targets(gateway_protobuf HAS_LIBRARY_TARGET)
+ament_export_dependencies(rclcpp)
+
 
 ament_package()

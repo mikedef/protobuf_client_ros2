@@ -14,6 +14,7 @@
 
 #ifndef PROTOBUF_CLIENT__PROTOBUF_CLIENT_NODE_HPP_
 #define PROTOBUF_CLIENT__PROTOBUF_CLIENT_NODE_HPP_
+#define __APP_NAME__ "protobuf_client_node"
 
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
@@ -32,37 +33,45 @@ class ProtobufClientNode : public rclcpp::Node
 {
 public:
   ProtobufClientNode(rclcpp::NodeOptions options);
-
+  
 private:
   void on_timer();
   size_t count_;
   // pubs and subs
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;   // Test pubs
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber_;  // Test subs
+  rclcpp::Publisher<protobuf_client_interfaces::msg::Gateway>::SharedPtr pub_gateway_msg_;   //  pubs
+  rclcpp::Subscription<protobuf_client_interfaces::msg::Gateway>::SharedPtr sub_to_gateway_;  //  subs
+  
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Clock ros_clock_;
   int gateway_port_;
   std::string gateway_ip_;
-  std::string send_to_gateway_;
+  std::string send_to_gateway_topic_;
   boost::asio::io_service io_;
   std::shared_ptr<gateway::tcp_client> client_{gateway::tcp_client::create(io_)};
 
-  void ToGatewayCallback(const protobuf_client_interfaces::msg::Gateway &msg);
+  void to_gateway_cb(const protobuf_client_interfaces::msg::Gateway &msg);
   /** 
    * @brief callback to subscribe to client ros gateway msgs and post to MOOSDB
    * @param[in] msg
    **/
 
-    void ConnectToGateway();
+  void connect_to_gateway();
   /**
    * @brief Connect to the MOOSDB through TCP 
    **/
 
-  void IngestGatewayMsg();
+  void ingest_gateway_msg();
   /**
    * @brief Ingests msg from gateway and publishes as a custom Gateway ROS msg
    **/
 
-  
+  void init_ros_io();
+  /**
+   * @brief callback to inititialize parameters 
+   * @param[in] in_private_nh
+   **/
   
 };
 
