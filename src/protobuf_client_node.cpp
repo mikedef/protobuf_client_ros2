@@ -25,45 +25,46 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
   : Node("protobuf_client_node", options), count_(0)
 {
   // Test params
-  declare_parameter("gateway_port", 5001);
+  declare_parameter("gateway_port", 9501);
   declare_parameter("gateway_ip", "127.0.0.1");
   declare_parameter("send_to_gateway_topic", "/send_to_gateway");
+
+  // init params
+  gateway_port_ = get_parameter("gateway_port").as_int();
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway_port: %ld", __APP_NAME__, gateway_port_);
+  gateway_ip_ = get_parameter("gateway_ip").as_string();
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway IP: %s", __APP_NAME__, gateway_ip_.c_str());
+  send_to_gateway_topic_ = get_parameter("send_to_gateway_topic").as_string();
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+	      "[%s] subscription topic: %s", __APP_NAME__, send_to_gateway_topic_.c_str());
   // pub
-  publisher_ = create_publisher<std_msgs::msg::String>("topic", 10);
   pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>("/gateway_msg", 100);
   
   timer_ = create_wall_timer(
     500ms, std::bind(&ProtobufClientNode::on_timer, this));
 
   // sub
-  // Create a callback function for when messages are received.                                   
-  auto callback =                                                                                       
-    [this](std_msgs::msg::String::UniquePtr msg)                                                        
-      {                                                                                                 
-      RCLCPP_INFO(this->get_logger(), "Subscriber: '%s'", msg->data.c_str());                           
-      std::flush(std::cout);                                                                            
-    };                                                                                                  
-                                                                                                        
-  // Create a subscription to the "topic" topic which can be matched with one or more                   
-  // compatible ROS publishers.                                                                         
-  // Note that not all publishers on the same topic with the same type will be compatible:              
-  // they must have compatible Quality of Service policies.                                             
-  subscriber_ = create_subscription<std_msgs::msg::String>(                                           
-    "topic",                                                                                            
-    10, callback);
   // Sub callback must match supported class template 
   this->sub_to_gateway_ = this->create_subscription<protobuf_client_interfaces::msg::Gateway>(
     send_to_gateway_topic_,
     10, 
     std::bind(&ProtobufClientNode::to_gateway_cb, this, std::placeholders::_1));
+
+  // Connecting to iMOOSGateway
+  ProtobufClientNode::connect_to_gateway();
+
+  // Define handles for interface messages
+  ProtobufClientNode::ingest_gateway_msg();
 }
 
 void ProtobufClientNode::on_timer()
 {
+  /*
   auto message = std_msgs::msg::String();
   message.data = "Hello, world! " + std::to_string(count_++);
   RCLCPP_INFO(this->get_logger(), "Publisher: '%s'", message.data.c_str());
   publisher_->publish(message);
+  */
 }
 
 void ProtobufClientNode::to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg)
@@ -133,37 +134,6 @@ void ProtobufClientNode::ingest_gateway_msg()
       });
 }
 
-void ProtobufClientNode::init_ros_io()
-{
-  // Move to constructor?
-  
-  // init params
-  gateway_port_ = get_parameter("gateway_port").as_int();
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway_port: %ld", __APP_NAME__, gateway_port_);
-  gateway_ip_ = get_parameter("gateway_ip").as_string();
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway IP: %s", __APP_NAME__, gateway_ip_.c_str());
-  send_to_gateway_topic_ = get_parameter("send_to_gateway_topic").as_string();
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
-	      "[%s] subscription topic: %s", __APP_NAME__, send_to_gateway_topic_.c_str());
-  
-  // Connecting to iMOOSGateway
-  connect_to_gateway();
-
-  // Define handles for interface messages
-  ingest_gateway_msg();
-  
-  // init subscriptions
-  //sub_to_gateway_ = create_subscription<protbuf_client_interfaces::msg::Gateway>(       
-  //  send_to_gateway_topic_,                                                                     
-  //  10, to_gateway_cb);
-  //nh_.subscribe(send_to_gateway_, 100, &ProtobufClient::ToGatewayCallback, this);
-
-  // init publishers
-  //pub_gateway_msg_ = nh_.advertise<protobuf_client::Gateway>("/gateway_msg", 1000);
-  //  pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>(
-  //  "/gateway_msg", 100);
-}
-
 RCLCPP_COMPONENTS_REGISTER_NODE(ProtobufClientNode)
 
 int main(int argc, char * argv[])
@@ -172,7 +142,8 @@ int main(int argc, char * argv[])
   rclcpp::executors::SingleThreadedExecutor exec;
   rclcpp::NodeOptions options;
   auto node = std::make_shared<ProtobufClientNode>(options);
-  
+
+    
   exec.add_node(node);
   exec.spin();
   rclcpp::shutdown();

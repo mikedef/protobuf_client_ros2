@@ -38,8 +38,6 @@ private:
   void on_timer();
   size_t count_;
   // pubs and subs
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;   // Test pubs
-  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber_;  // Test subs
   rclcpp::Publisher<protobuf_client_interfaces::msg::Gateway>::SharedPtr pub_gateway_msg_;   //  pubs
   rclcpp::Subscription<protobuf_client_interfaces::msg::Gateway>::SharedPtr sub_to_gateway_;  //  subs
 
@@ -67,12 +65,6 @@ private:
    * @brief Ingests msg from gateway and publishes as a custom Gateway ROS msg
    **/
 
-  void init_ros_io();
-  /**
-   * @brief callback to inititialize parameters 
-   * @param[in] in_private_nh
-   **/
-  
 };
 
 #endif  // PROTOBUF_CLIENT__PROTOBUF_CLIENT_NODE_HPP_
