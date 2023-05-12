@@ -42,7 +42,7 @@ private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber_;  // Test subs
   rclcpp::Publisher<protobuf_client_interfaces::msg::Gateway>::SharedPtr pub_gateway_msg_;   //  pubs
   rclcpp::Subscription<protobuf_client_interfaces::msg::Gateway>::SharedPtr sub_to_gateway_;  //  subs
-  
+
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Clock ros_clock_;
   int gateway_port_;
@@ -51,7 +51,7 @@ private:
   boost::asio::io_service io_;
   std::shared_ptr<gateway::tcp_client> client_{gateway::tcp_client::create(io_)};
 
-  void to_gateway_cb(const protobuf_client_interfaces::msg::Gateway &msg);
+  void to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg);
   /** 
    * @brief callback to subscribe to client ros gateway msgs and post to MOOSDB
    * @param[in] msg

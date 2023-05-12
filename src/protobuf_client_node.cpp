@@ -51,10 +51,11 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
   subscriber_ = create_subscription<std_msgs::msg::String>(                                           
     "topic",                                                                                            
     10, callback);
-  /// Breaking the system!!! how to use sub callback properly? 
-  sub_to_gateway_ = create_subscription<protobuf_client_interfaces::msg::Gateway>(
+  // Sub callback must match supported class template 
+  this->sub_to_gateway_ = this->create_subscription<protobuf_client_interfaces::msg::Gateway>(
     send_to_gateway_topic_,
-    10, std::bind(&ProtobufClientNode::to_gateway_cb, this));
+    10, 
+    std::bind(&ProtobufClientNode::to_gateway_cb, this, std::placeholders::_1));
 }
 
 void ProtobufClientNode::on_timer()
@@ -63,6 +64,11 @@ void ProtobufClientNode::on_timer()
   message.data = "Hello, world! " + std::to_string(count_++);
   RCLCPP_INFO(this->get_logger(), "Publisher: '%s'", message.data.c_str());
   publisher_->publish(message);
+}
+
+void ProtobufClientNode::to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg)
+{
+
 }
 
 void ProtobufClientNode::connect_to_gateway()
