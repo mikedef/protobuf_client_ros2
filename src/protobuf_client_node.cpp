@@ -69,7 +69,20 @@ void ProtobufClientNode::on_timer()
 
 void ProtobufClientNode::to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg)
 {
+  // Transform /send_to_gateway topic to Protobuf
+  moos::gateway::ToGateway to_gateway;
+  rclcpp::Time time = ros_clock_.now();
+  to_gateway.set_client_time(time.seconds());
+  to_gateway.set_client_key(msg->gateway_key);
+  to_gateway.set_client_double(msg->gateway_double);
+  to_gateway.set_client_string(msg->gateway_string);
 
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Client Key: %s", msg->gateway_key.c_str());
+
+  if(client_->connected())
+  {
+    client_->write(to_gateway);
+  }
 }
 
 void ProtobufClientNode::connect_to_gateway()
