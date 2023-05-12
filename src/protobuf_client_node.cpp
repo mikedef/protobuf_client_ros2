@@ -41,7 +41,7 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
   pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>("/gateway_msg", 100);
   
   timer_ = create_wall_timer(
-    500ms, std::bind(&ProtobufClientNode::on_timer, this));
+    100ms, std::bind(&ProtobufClientNode::on_timer, this));
 
   // sub
   // Sub callback must match supported class template 
@@ -59,12 +59,27 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
 
 void ProtobufClientNode::on_timer()
 {
-  /*
-  auto message = std_msgs::msg::String();
-  message.data = "Hello, world! " + std::to_string(count_++);
-  RCLCPP_INFO(this->get_logger(), "Publisher: '%s'", message.data.c_str());
-  publisher_->publish(message);
-  */
+  // Maintaining the TCP connection
+  if (client_->connected())
+  {
+    io_.poll();
+  }
+  else
+  {
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Disconnected from Gateway...");
+    // Try to reconnect
+    client_->connect(gateway_ip_, gateway_port_);
+    try
+    {
+      io_.poll();
+    }
+    catch(boost::system::error_code & ec)
+    {
+      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Looping until connected to gateway. Error ");
+      std::cout << ec << std::endl;
+    }
+  }
+
 }
 
 void ProtobufClientNode::to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg)

@@ -35,7 +35,7 @@ public:
   ProtobufClientNode(rclcpp::NodeOptions options);
   
 private:
-  void on_timer();
+  
   size_t count_;
   // pubs and subs
   rclcpp::Publisher<protobuf_client_interfaces::msg::Gateway>::SharedPtr pub_gateway_msg_;   //  pubs
@@ -48,6 +48,11 @@ private:
   std::string send_to_gateway_topic_;
   boost::asio::io_service io_;
   std::shared_ptr<gateway::tcp_client> client_{gateway::tcp_client::create(io_)};
+
+  void on_timer();
+  /**
+   * @brief iterate loop to poll Gateway. Set timer_ var for loop rate
+   **/
 
   void to_gateway_cb(const protobuf_client_interfaces::msg::Gateway::SharedPtr msg);
   /** 
