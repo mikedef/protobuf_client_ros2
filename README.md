@@ -1,6 +1,8 @@
 # protobuf_client_ros2
 ROS 2 client for the MIT AUV Lab's MOOS-ROS bridge
 
+## protobuf_client_ros2 is intended to be used with the iMOOSGateway MOOS application. Please see the moos-ivp-gateway package (https://github.com/mikedef/moos-ivp-gateway) for more information.
+
 `protobuf_client_ros2` is a ROS node that serves as a bridge to MOOS-IvP through a predefined Google Protobuf message type. It runs a TCP client using `lib_gateway_tcp` (adopted from https://github.com/GobySoft/ntsim/tree/master/src/lib/tcp), which allows this application to connect to a MOOS based TCP server, using the same library.                                                                             
                                                                                                         
 When `protobuf_client_ros2` receives key-value pairs defined in the MOOS-IvP Gateway application. This data is posted as the rostopic `/gateway_msg` as Gateway.msg ROS type. The gateway_msg topic can then be subscribed to by an additional data parsing node created by the user.                 
