@@ -1,7 +1,7 @@
 # protobuf_client_ros2
 ROS 2 client for the MIT AUV Lab's MOOS-ROS bridge
 
-## protobuf_client_ros2 is intended to be used with the iMOOSGateway MOOS application. Please see the moos-ivp-gateway package (https://github.com/mikedef/moos-ivp-gateway) for more information.
+### protobuf_client_ros2 is intended to be used with the iMOOSGateway MOOS application. Please see the moos-ivp-gateway package (https://github.com/mikedef/moos-ivp-gateway) for more information.
 
 `protobuf_client_ros2` is a ROS node that serves as a bridge to MOOS-IvP through a predefined Google Protobuf message type. It runs a TCP client using `lib_gateway_tcp` (adopted from https://github.com/GobySoft/ntsim/tree/master/src/lib/tcp), which allows this application to connect to a MOOS based TCP server, using the same library.                                                                             
                                                                                                         
@@ -13,6 +13,13 @@ The `protobuf_client_ros2` is set to automatically forward any messages posted t
 
 ### NOTE on the custom Gateway.msg
 While it is provided in the protobuf_client_ros2/msg directory this message should be built into it's own custom package `protobuf_client_interfaces` to be used proberly by `protobuf_client_ros2`
+
+## Dependencies
+* Google protocol buffers
+  * `sudo apt install protobuf-compiler`
+* Base64 encode/decode
+  * `sudo apt install libb64-dev`
+
                                                                                                         
 ## ROS API                                                                                              
                                                                                                         
