@@ -11,8 +11,10 @@ The `protobuf_client_ros2` is set to automatically forward any messages posted t
                                                                                                         
 * Please see Gateway.msg for more information into the `/gateway_msg` and `/send_to_gateway` topics custom data type.
 
-### NOTE on the custom Gateway.msg
-While it is provided in the protobuf_client_ros2/msg directory this message should be built into it's own custom package `protobuf_client_interfaces` to be used proberly by `protobuf_client_ros2`
+## NOTE on the custom Gateway.msg
+While it is provided in the protobuf_client_ros2/msg directory this message should be built into it's own custom package `protobuf_client_interfaces` to be used properly by `protobuf_client_ros2`
+
+Please be aware of this failure during build time. The package will fail to build due to "protobuf_client_interfaces" missing. Please download the "protobuf_client_interfaces" ROS 2 package (https://github.com/mikedef/protobuf_client_interfaces)
 
 ## Dependencies
 * Google protocol buffers
