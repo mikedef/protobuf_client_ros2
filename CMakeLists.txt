@@ -89,6 +89,7 @@ target_link_libraries(protobuf_client_node
   ${Boost_LIBRARIES})
 ament_target_dependencies(protobuf_client_node
   rclcpp
+  rclcpp_components
   Boost
   class_loader
   std_msgs

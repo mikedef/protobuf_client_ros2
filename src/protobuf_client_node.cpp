@@ -31,7 +31,7 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
 
   // init params
   gateway_port_ = get_parameter("gateway_port").as_int();
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway_port: %ld", __APP_NAME__, gateway_port_);
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway_port: %d", __APP_NAME__, gateway_port_);
   gateway_ip_ = get_parameter("gateway_ip").as_string();
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "[%s] gateway IP: %s", __APP_NAME__, gateway_ip_.c_str());
   send_to_gateway_topic_ = get_parameter("send_to_gateway_topic").as_string();
