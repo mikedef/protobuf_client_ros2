@@ -1,14 +1,14 @@
-/*****************************************************************/                                     
-/*    NAME: Michael DeFilippo and Dr. Supun Randeni              */                                     
-/*    ORGN: Dept of Mechanical Engineering, MIT, Cambridge MA    */                                     
-/*    FILE: protobuf_client_node.cpp                             */                                     
-/*    DATE: 2023-04-28                                           */                                     
-/*    NOTE: ROS 2 Node to connect to MOOS gateway and share data */                                     
-/*          via a generic protobuf message                       */                                     
-/*                                                               */                                     
-/* This is unreleased BETA code. no permission is granted or     */                                     
-/* implied to use, copy, modify, and distribute this software    */                                     
-/* except by the author(s), or those designated by the author.   */                                     
+/*****************************************************************/
+/*    NAME: Michael DeFilippo and Dr. Supun Randeni              */
+/*    ORGN: Dept of Mechanical Engineering, MIT, Cambridge MA    */
+/*    FILE: protobuf_client_node.cpp                             */
+/*    DATE: 2023-04-28                                           */
+/*    NOTE: ROS 2 Node to connect to MOOS gateway and share data */
+/*          via a generic protobuf message                       */
+/* Copyright MIT and author/s of software                        */
+/* This is unreleased BETA code. no permission is granted or     */
+/* implied to use, copy, modify, and distribute this software    */
+/* except by the author(s), or those designated by the author.   */
 /*****************************************************************/
 
 #include <chrono>
@@ -39,15 +39,14 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
 	      "[%s] subscription topic: %s", __APP_NAME__, send_to_gateway_topic_.c_str());
   // pub
   pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>("/gateway_msg", 100);
-  
   timer_ = create_wall_timer(
     100ms, std::bind(&ProtobufClientNode::on_timer, this));
 
   // sub
-  // Sub callback must match supported class template 
+  // Sub callback must match supported class template
   this->sub_to_gateway_ = this->create_subscription<protobuf_client_interfaces::msg::Gateway>(
     send_to_gateway_topic_,
-    10, 
+    10,
     std::bind(&ProtobufClientNode::to_gateway_cb, this, std::placeholders::_1));
 
   // Connecting to iMOOSGateway
@@ -101,7 +100,7 @@ void ProtobufClientNode::to_gateway_cb(const protobuf_client_interfaces::msg::Ga
 }
 
 void ProtobufClientNode::connect_to_gateway()
-{ 
+{
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Connecting to iMOOSGateway...");
   bool print_loop_error = false;
   client_->connect(gateway_ip_, gateway_port_);
@@ -171,7 +170,6 @@ int main(int argc, char * argv[])
   rclcpp::NodeOptions options;
   auto node = std::make_shared<ProtobufClientNode>(options);
 
-    
   exec.add_node(node);
   exec.spin();
   rclcpp::shutdown();
