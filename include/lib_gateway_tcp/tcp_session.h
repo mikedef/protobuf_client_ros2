@@ -23,8 +23,8 @@
 
 #include <google/protobuf/message.h>
 
-#include "b64/encode.h"
-#include "b64/decode.h"
+#include <b64/encode.h>
+#include <b64/decode.h>
 
 namespace gateway
 {
