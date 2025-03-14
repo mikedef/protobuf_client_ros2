@@ -46,6 +46,7 @@ private:
   int gateway_port_;
   std::string gateway_ip_;
   std::string send_to_gateway_topic_;
+  std::string incoming_gateway_topic_;
   boost::asio::io_service io_;
   std::shared_ptr<gateway::tcp_client> client_{gateway::tcp_client::create(io_)};
 

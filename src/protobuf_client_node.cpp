@@ -28,6 +28,7 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
   declare_parameter("gateway_port", 9501);
   declare_parameter("gateway_ip", "127.0.0.1");
   declare_parameter("send_to_gateway_topic", "/send_to_gateway");
+  declare_parameter("incoming_gateway_topic", "/gateway_msg");
 
   // init params
   gateway_port_ = get_parameter("gateway_port").as_int();
@@ -37,8 +38,12 @@ ProtobufClientNode::ProtobufClientNode(rclcpp::NodeOptions options)
   send_to_gateway_topic_ = get_parameter("send_to_gateway_topic").as_string();
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
               "[%s] subscription topic: %s", __APP_NAME__, send_to_gateway_topic_.c_str());
+  incoming_gateway_topic_ = get_parameter("incoming_gateway_topic").as_string();
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+              "[%s] publish topic: %s", __APP_NAME__, incoming_gateway_topic_.c_str());
+
   // pub
-  pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>("/gateway_msg", 100);
+  pub_gateway_msg_ = create_publisher<protobuf_client_interfaces::msg::Gateway>(incoming_gateway_topic_, 100);
   timer_ = create_wall_timer(
       100ms, std::bind(&ProtobufClientNode::on_timer, this));
 
